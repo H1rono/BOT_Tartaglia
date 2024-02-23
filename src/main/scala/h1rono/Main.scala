@@ -1,6 +1,6 @@
 package example
 
-object Hello extends App {
+object Main extends App {
   import org.json4s.native.JsonMethods.parse
 
   val flakeLock = io.Source.fromFile("flake.lock").mkString
