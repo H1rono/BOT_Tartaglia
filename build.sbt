@@ -8,7 +8,12 @@ ThisBuild / organizationName := "h1rono"
 lazy val root = (project in file("."))
   .settings(
     name := "bot-tartaglia",
-    libraryDependencies += munit % Test
+    // deps
+    libraryDependencies += munit % Test,
+    // configurations required by scalafix
+    semanticdbEnabled := true, // enable SemanticDB
+    semanticdbVersion := scalafixSemanticdb.revision, // only required for Scala 2.x
+    scalacOptions += "-Ywarn-unused-import" // Scala 2.x only, required by `RemoveUnused`
   )
 
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
