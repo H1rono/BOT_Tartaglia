@@ -14,6 +14,7 @@ lazy val root = (project in file("."))
     libraryDependencies += munit % Test,
     libraryDependencies ++= http4s,
     libraryDependencies += circeGeneric,
+    libraryDependencies += logback,
     // configurations required by scalafix
     semanticdbEnabled := true, // enable SemanticDB
     semanticdbVersion := scalafixSemanticdb.revision, // only required for Scala 2.x

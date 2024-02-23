@@ -9,4 +9,5 @@ object Dependencies {
     "org.http4s" %% "http4s-circe" % http4sVersion
   )
   lazy val circeGeneric = "io.circe" %% "circe-generic" % "0.14.6"
+  lazy val logback = "ch.qos.logback" % "logback-classic" % "1.5.0"
 }
