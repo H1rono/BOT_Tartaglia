@@ -1,9 +1,8 @@
 package example
 
-object Main extends App {
-  import org.json4s.native.JsonMethods.parse
+import cats.effect.{IO, IOApp}
+import h1rono.BotServer
 
-  val flakeLock = io.Source.fromFile("flake.lock").mkString
-  val parsed = parse(flakeLock)
-  println(parsed)
+object Main extends IOApp.Simple {
+  val run = BotServer.run[IO]
 }
