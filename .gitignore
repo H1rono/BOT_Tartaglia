@@ -27,3 +27,6 @@ hs_err_pid*
 # Ignore build outputs from performing a nix-build or `nix build` command
 result
 result-*
+
+# direnv output
+.direnv/
