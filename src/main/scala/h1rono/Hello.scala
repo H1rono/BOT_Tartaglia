@@ -1,9 +1,9 @@
 package example
 
-object Hello extends Greeting with App {
-  println(greeting)
-}
+object Hello extends App {
+  import org.json4s.native.JsonMethods.parse
 
-trait Greeting {
-  lazy val greeting: String = "hello"
+  val flakeLock = io.Source.fromFile("flake.lock").mkString
+  val parsed = parse(flakeLock)
+  println(parsed)
 }

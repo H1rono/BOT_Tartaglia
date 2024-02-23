@@ -10,6 +10,7 @@ lazy val root = (project in file("."))
     name := "bot-tartaglia",
     // deps
     libraryDependencies += munit % Test,
+    libraryDependencies += json4sNative,
     // configurations required by scalafix
     semanticdbEnabled := true, // enable SemanticDB
     semanticdbVersion := scalafixSemanticdb.revision, // only required for Scala 2.x
