@@ -12,6 +12,7 @@ object BotServer {
   def run[F[_]: Async: Network: Console]: F[Nothing] = {
     val helloWorldAlg = HelloWorld.impl[F]
     val dumpReqAlg = DumpReq.impl[F]
+    val botHandlerAlg = BotHandler.impl[F]
 
     // Combine Service Routes into an HttpApp.
     // Can also be done via a Router if you
@@ -19,7 +20,8 @@ object BotServer {
     // in the underlying routes.
     val httpApp = (
       BotRoutes.helloWorldRoutes[F](helloWorldAlg) <+>
-        BotRoutes.dumpRequestRoutes[F](dumpReqAlg)
+        BotRoutes.dumpRequestRoutes[F](dumpReqAlg) <+>
+        BotRoutes.botHandlerRoutes[F](botHandlerAlg)
     ).orNotFound
 
     for {

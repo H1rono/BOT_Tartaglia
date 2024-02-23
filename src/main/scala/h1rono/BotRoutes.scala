@@ -27,4 +27,14 @@ object BotRoutes {
       } yield Response(status = status)
     }
   }
+
+  def botHandlerRoutes[F[_]: Sync](B: BotHandler[F]): HttpRoutes[F] = {
+    val dsl = new Http4sDsl[F] {}
+    import dsl._
+    HttpRoutes.of[F] { case req @ POST -> Root / "bot" =>
+      for {
+        status <- B.bot(req)
+      } yield Response(status = status)
+    }
+  }
 }
