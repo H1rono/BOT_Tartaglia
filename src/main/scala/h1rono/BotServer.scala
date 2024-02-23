@@ -10,6 +10,9 @@ import cats.effect.std.Console
 
 object BotServer {
   def run[F[_]: Async: Network: Console]: F[Nothing] = {
+    val verificationToken = loadEnv("VERIFICATION_TOKEN")
+    val accessToken = loadEnv("BOT_ACCESS_TOKEN")
+
     val helloWorldAlg = HelloWorld.impl[F]
     val dumpReqAlg = DumpReq.impl[F]
     val botHandlerAlg = BotHandler.impl[F]
@@ -34,4 +37,7 @@ object BotServer {
           .build
     } yield ()
   }.useForever
+
+  private def loadEnv(name: String): String =
+    sys.env.get(name).getOrElse(throw new Exception(s"env-var $name is not present"))
 }
