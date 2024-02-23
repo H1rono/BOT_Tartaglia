@@ -4,7 +4,7 @@ import org.http4s.Request
 import cats.effect.std._
 import cats.syntax.all._
 import cats.effect.kernel.Async
-import _root_.org.http4s.Status
+import org.http4s.Status
 
 trait DumpReq[F[_]] {
   def dump(req: DumpReq.Req[F]): F[Status]
