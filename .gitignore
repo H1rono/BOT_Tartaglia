@@ -30,3 +30,9 @@ result-*
 
 # direnv output
 .direnv/
+
+# Metals outputs
+.metals/
+
+# bloop outputs
+.bloop/
