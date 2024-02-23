@@ -15,7 +15,7 @@ object BotServer {
 
     val helloWorldAlg = HelloWorld.impl[F]
     val dumpReqAlg = DumpReq.impl[F]
-    val botHandlerAlg = BotHandler.impl[F]
+    val botHandlerAlg = BotHandler.impl[F](BotHandler.Config(verificationToken, accessToken))
 
     // Combine Service Routes into an HttpApp.
     // Can also be done via a Router if you
