@@ -10,21 +10,15 @@
     {
       overlays.default = final: prev: rec {
         jre = prev.jdk21;
-        sbt = prev.sbt.override {
-          inherit jre;
-        };
-        scala_3 = prev.scala_3.override {
-          inherit jre;
-        };
-        metals = prev.metals.override {
-          inherit jre;
-        };
+        sbt = prev.sbt.override { inherit jre; };
+        scala_2_12 = prev.scala_2_12.override { inherit jre; };
+        metals = prev.metals.override { inherit jre; };
       };
     } // flake-utils.lib.eachDefaultSystem (system:
       let pkgs = import nixpkgs { inherit system; };
       in {
         devShells.default = pkgs.mkShell {
-          packages = with pkgs; [ jdk21 scala_3 sbt metals ];
+          packages = with pkgs; [ jdk21 scala_2_12 sbt metals ];
         };
       });
 }
