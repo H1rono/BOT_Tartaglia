@@ -5,7 +5,7 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "h1rono"
 ThisBuild / organizationName := "h1rono"
 
-fork in run := true
+run / fork := true
 
 lazy val root = (project in file("."))
   .settings(
