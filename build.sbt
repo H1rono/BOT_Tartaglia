@@ -12,7 +12,6 @@ lazy val root = (project in file("."))
     name := "bot-tartaglia",
     // deps
     libraryDependencies += munit % Test,
-    libraryDependencies += json4sNative,
     libraryDependencies ++= http4s,
     libraryDependencies += circeGeneric,
     // configurations required by scalafix
