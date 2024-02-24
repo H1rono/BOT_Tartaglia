@@ -19,7 +19,7 @@ object BotServer {
     accessToken <- loadEnvF[F]("BOT_ACCESS_TOKEN")
     helloWorldAlg = HelloWorld.impl[F]
     dumpReqAlg = DumpReq.impl[F]
-    botHandlerAlg = BotHandler.impl[F](BotHandler.Config(verificationToken, accessToken))
+    botHandlerAlg = BotHandler.impl[F](BotHandler.Config(verificationToken))
 
     // Combine Service Routes into an HttpApp.
     // Can also be done via a Router if you

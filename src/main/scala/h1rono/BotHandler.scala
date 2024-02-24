@@ -16,7 +16,7 @@ trait BotHandler[F[_]] {
 }
 
 object BotHandler {
-  final case class Config(verificationToken: String, accessToken: String)
+  final case class Config(verificationToken: String)
 
   def impl[F[_]: Async: std.Console](conf: Config): BotHandler[F] = new BotHandler[F] {
     def bot(req: Request[F]): F[Status] = for {
