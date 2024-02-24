@@ -34,7 +34,7 @@ object TraqClient {
         .withUri(uri)
         .withMethod(Method.POST)
         .withHeaders(`application/json`, authorization)
-        .withEntity(Json.obj(("channelId", Json.fromString(botId))))
+        .withEntity(Json.obj(("channelId", Json.fromString(channelId))))
       base.expect[Unit](req)
     }
 
@@ -44,7 +44,7 @@ object TraqClient {
         .withMethod(Method.POST)
         .withUri(uri)
         .withHeaders(`application/json`, authorization)
-        .withEntity(Json.obj(("channelId", Json.fromString(botId))))
+        .withEntity(Json.obj(("channelId", Json.fromString(channelId))))
       base.expect[Unit](req)
     }
 
