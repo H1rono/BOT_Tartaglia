@@ -23,7 +23,7 @@ trait TraqClient[F[_]] {
 
 object TraqClient {
   def impl[F[_]: Async](
-      base: Resource[F, Client[F]],
+      base: Client[F],
       botId: String,
       botUserId: String,
       accessToken: String
@@ -35,7 +35,7 @@ object TraqClient {
         .withMethod(Method.POST)
         .withHeaders(`application/json`, authorization)
         .withEntity(Json.obj(("channelId", Json.fromString(botId))))
-      base.use(client => client.expect[Unit](req))
+      base.expect[Unit](req)
     }
 
     def leaveChannel(channelId: String): F[Unit] = {
@@ -45,7 +45,7 @@ object TraqClient {
         .withUri(uri)
         .withHeaders(`application/json`, authorization)
         .withEntity(Json.obj(("channelId", Json.fromString(botId))))
-      base.use(client => client.expect[Unit](req))
+      base.expect[Unit](req)
     }
 
     def sendMessage(target: SendTarget, content: String, embed: Boolean): F[Json] = {
@@ -63,7 +63,7 @@ object TraqClient {
         .withUri(uri)
         .withHeaders(`application/json`, authorization)
         .withEntity()
-      base.use(client => client.expect[Json](req))
+      base.expect[Json](req)
     }
 
     private def uriOf(path: String): Uri =
