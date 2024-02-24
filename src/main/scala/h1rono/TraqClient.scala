@@ -62,7 +62,7 @@ object TraqClient {
         .withMethod(Method.POST)
         .withUri(uri)
         .withHeaders(`application/json`, authorization)
-        .withEntity()
+        .withEntity(body)
       base.expect[Json](req)
     }
 
