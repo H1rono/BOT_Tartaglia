@@ -10,7 +10,7 @@ import cats.effect.std.Console
 import org.http4s._
 import org.http4s.circe._
 import cats.syntax.all._
-import cats.data.EitherT
+import cats.data.{EitherT, OptionT}
 
 trait BotHandler[F[_]] {
   def bot(req: Request[F]): F[Status]
@@ -20,15 +20,17 @@ object BotHandler {
   final case class Config[F[_]](client: TraqClient[F], verificationToken: String)
 
   def impl[F[_]: Async: Console](conf: Config[F]): BotHandler[F] = new BotHandler[F] {
-    def bot(req: Request[F]): F[Status] = for {
-      req <- parseRequest(req).value
-      // TODO: Do something with req
-    } yield req match {
+    def bot(req: Request[F]): F[Status] = (for {
+      req <- parseRequest(req)
+      eventType = req._1
+      payload = req._2
+      res <- handle(eventType, payload)
+    } yield res).value.map(_ match {
       case Left(HandleResults.BadInput)        => Status.BadRequest
       case Left(HandleResults.Success)         => Status.NoContent
       case Left(HandleResults.UnexpectedError) => Status.InternalServerError
       case Right(_)                            => Status.NoContent
-    }
+    })
 
     private sealed trait HandleResults
     private object HandleResults {
@@ -64,5 +66,40 @@ object BotHandler {
       headers <- req.headers.get(key)
       header <- headers.get(0)
     } yield header.value
+
+    private def handle(eventType: String, payload: Json): EitherT[F, HandleResults, Unit] =
+      eventType match {
+        case "JOIN" =>
+          EitherT.fromOptionF(
+            {
+              val channelPathStr = payload.asObject
+                .flatMap(_.toMap.get("channel"))
+                .flatMap(_.asObject)
+                .flatMap(_.toMap.get("path"))
+                .flatMap(_.asString)
+              for {
+                path <- OptionT.fromOption(channelPathStr).value
+                _ <- Console[F].println(s"joined to channel $path")
+              } yield Some(())
+            },
+            HandleResults.BadInput
+          )
+        case "LEFT" =>
+          EitherT.fromOptionF(
+            {
+              val channelPathStr = payload.asObject
+                .flatMap(_.toMap.get("channel"))
+                .flatMap(_.asObject)
+                .flatMap(_.toMap.get("path"))
+                .flatMap(_.asString)
+              for {
+                path <- OptionT.fromOption(channelPathStr).value
+                _ <- Console[F].println(s"left from channel $path")
+              } yield Some(())
+            },
+            HandleResults.BadInput
+          )
+        case _ => EitherT.leftT(HandleResults.Success)
+      }
   }
 }
