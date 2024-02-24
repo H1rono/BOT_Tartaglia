@@ -16,29 +16,44 @@ import org.http4s.client.Client
 import org.http4s.ember.client.EmberClientBuilder
 
 object BotServer {
-  def run[F[_]: Async: Network: Console: Env]: EitherT[F, String, Resource[F, Server]] = for {
+  final case class Config(
+      verificationToken: String,
+      accessToken: String,
+      botId: String,
+      botUserId: String
+  )
+
+  def config[F[_]: Async: Network: Console: Env]: EitherT[F, String, Config] = for {
     verificationToken <- loadEnvF[F]("VERIFICATION_TOKEN")
     accessToken <- loadEnvF[F]("BOT_ACCESS_TOKEN")
     botId <- loadEnvF("BOT_ID")
     botUserId <- loadEnvF("BOT_USER_ID")
+  } yield Config(verificationToken, accessToken, botId, botUserId)
 
-    baseClient = buildClient
-    traqClient = TraqClient.impl(baseClient, botId, botUserId, accessToken)
-    helloWorldAlg = HelloWorld.impl[F]
-    dumpReqAlg = DumpReq.impl[F]
-    botHandlerAlg = BotHandler.impl[F](BotHandler.Config(traqClient, verificationToken))
-
-    // Combine Service Routes into an HttpApp.
-    // Can also be done via a Router if you
-    // want to extract segments not checked
-    // in the underlying routes.
-    httpApp = (
-      BotRoutes.helloWorldRoutes[F](helloWorldAlg) <+>
-        BotRoutes.dumpRequestRoutes[F](dumpReqAlg) <+>
-        BotRoutes.botHandlerRoutes[F](botHandlerAlg)
-    ).orNotFound
-    server <- EitherT.rightT(buildServer(httpApp))
-  } yield server
+  def run[F[_]: Async: Network: Console: Env](
+      conf: Config
+  ): F[Nothing] = conf match {
+    case Config(verificationToken, accessToken, botId, botUserId) =>
+      {
+        for {
+          baseClient <- buildClient
+          traqClient = TraqClient.impl(baseClient, botId, botUserId, accessToken)
+          helloWorldAlg = HelloWorld.impl[F]
+          dumpReqAlg = DumpReq.impl[F]
+          botHandlerAlg = BotHandler.impl[F](BotHandler.Config(traqClient, verificationToken))
+          // Combine Service Routes into an HttpApp.
+          // Can also be done via a Router if you
+          // want to extract segments not checked
+          // in the underlying routes.
+          httpApp = (
+            BotRoutes.helloWorldRoutes[F](helloWorldAlg) <+>
+              BotRoutes.dumpRequestRoutes[F](dumpReqAlg) <+>
+              BotRoutes.botHandlerRoutes[F](botHandlerAlg)
+          ).orNotFound
+          server <- buildServer(httpApp)
+        } yield ()
+      }.useForever
+  }
 
   private def buildClient[F[_]: Async]: Resource[F, Client[F]] =
     EmberClientBuilder.default[F].build
