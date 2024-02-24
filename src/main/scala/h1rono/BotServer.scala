@@ -12,11 +12,18 @@ import cats.data.EitherT
 import cats.effect.kernel.Resource
 import org.http4s.HttpApp
 import cats.effect.std.Env
+import org.http4s.client.Client
+import org.http4s.ember.client.EmberClientBuilder
 
 object BotServer {
   def run[F[_]: Async: Network: Console: Env]: EitherT[F, String, Resource[F, Server]] = for {
     verificationToken <- loadEnvF[F]("VERIFICATION_TOKEN")
     accessToken <- loadEnvF[F]("BOT_ACCESS_TOKEN")
+    botId <- loadEnvF("BOT_ID")
+    botUserId <- loadEnvF("BOT_USER_ID")
+
+    baseClient = buildClient
+    traqClient = TraqClient.impl(baseClient, botId, botUserId, accessToken)
     helloWorldAlg = HelloWorld.impl[F]
     dumpReqAlg = DumpReq.impl[F]
     botHandlerAlg = BotHandler.impl[F](BotHandler.Config(verificationToken))
@@ -32,6 +39,9 @@ object BotServer {
     ).orNotFound
     server <- EitherT.rightT(buildServer(httpApp))
   } yield server
+
+  private def buildClient[F[_]: Async]: Resource[F, Client[F]] =
+    EmberClientBuilder.default[F].build
 
   private def buildServer[F[_]: Async](app: HttpApp[F]): Resource[F, Server] =
     EmberServerBuilder
