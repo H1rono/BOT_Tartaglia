@@ -29,7 +29,7 @@ object TraqClient {
       accessToken: String
   ): TraqClient[F] = new TraqClient[F] {
     def joinChannel(channelId: String): F[Unit] = {
-      val uri = Uri.fromString(s"https://q.trap.jp/api/v3/bots/$botId/actions/join").toOption.get
+      val uri = uriOf(s"/bots/$botId/actions/join")
       val req = Request[F]()
         .withUri(uri)
         .withMethod(Method.POST)
@@ -39,7 +39,7 @@ object TraqClient {
     }
 
     def leaveChannel(channelId: String): F[Unit] = {
-      val uri = Uri.fromString(s"https://q.trap.jp/api/v3/bots/$botId/actions/leave").toOption.get
+      val uri = uriOf(s"/bots/$botId/actions/leave")
       val req = Request[F]()
         .withMethod(Method.POST)
         .withUri(uri)
@@ -49,11 +49,11 @@ object TraqClient {
     }
 
     def sendMessage(target: SendTarget, content: String, embed: Boolean): F[Json] = {
-      val uriStr = target match {
-        case SendTarget.Channel(id) => s"https://q.trap.jp/api/v3/channels/$id/messages"
-        case SendTarget.Dm(userId)  => s"https://q.trap.jp/api/v3/users/$userId/messages"
+      val uriPath = target match {
+        case SendTarget.Channel(id) => s"/channels/$id/messages"
+        case SendTarget.Dm(userId)  => s"/users/$userId/messages"
       }
-      val uri = Uri.fromString(uriStr).toOption.get
+      val uri = uriOf(uriPath)
       val body = Json.obj(
         ("content", Json.fromString(content)),
         ("embed", Json.False)
@@ -66,6 +66,8 @@ object TraqClient {
       base.use(client => client.expect[Json](req))
     }
 
+    private def uriOf(path: String): Uri =
+      Uri.fromString(s"https://q.trap.jp/api/v3$path").toOption.get
     private val `application/json` = `Content-Type`(MediaType.application.json)
     private val authorization = Authorization(Credentials.Token(AuthScheme.Bearer, accessToken))
   }
