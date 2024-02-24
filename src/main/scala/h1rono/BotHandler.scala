@@ -43,7 +43,6 @@ object BotHandler {
       payload <- EitherT.right(req.as[Json])
       eventType <- checkRequest(req)
       _ <- EitherT.right(Console[F].println(s"event type is $eventType"))
-      _ <- EitherT.right(Console[F].println(payload))
     } yield (eventType, payload)
 
     private def checkRequest(req: Request[F]): EitherT[F, HandleResults, String] = for {
@@ -77,10 +76,13 @@ object BotHandler {
                 .flatMap(_.asObject)
                 .flatMap(_.toMap.get("path"))
                 .flatMap(_.asString)
-              for {
-                path <- OptionT.fromOption(channelPathStr).value
-                _ <- Console[F].println(s"joined to channel ${path.get}")
-              } yield Some(())
+              channelPathStr match {
+                case None => OptionT.fromOption(None).value
+                case Some(value) =>
+                  for {
+                    _ <- Console[F].println(s"joined to channel $value")
+                  } yield Some(())
+              }
             },
             HandleResults.BadInput
           )
@@ -92,10 +94,13 @@ object BotHandler {
                 .flatMap(_.asObject)
                 .flatMap(_.toMap.get("path"))
                 .flatMap(_.asString)
-              for {
-                path <- OptionT.fromOption(channelPathStr).value
-                _ <- Console[F].println(s"left from channel ${path.get}")
-              } yield Some(())
+              channelPathStr match {
+                case None => OptionT.fromOption(None).value
+                case Some(path) =>
+                  for {
+                    _ <- Console[F].println(s"left from channel $path")
+                  } yield Some(())
+              }
             },
             HandleResults.BadInput
           )

@@ -10,18 +10,18 @@ import org.http4s.headers._
 import io.circe.Json
 
 trait TraqClient[F[_]] {
+  def joinChannel(channelId: String): F[Unit]
+  def leaveChannel(channelId: String): F[Unit]
+  def sendMessage(target: TraqClient.SendTarget, content: String, embed: Boolean): F[Json]
+}
+
+object TraqClient {
   sealed trait SendTarget
   final object SendTarget {
     case class Channel(id: String) extends SendTarget
     case class Dm(userId: String) extends SendTarget
   }
 
-  def joinChannel(channelId: String): F[Unit]
-  def leaveChannel(channelId: String): F[Unit]
-  def sendMessage(target: SendTarget, content: String, embed: Boolean): F[Json]
-}
-
-object TraqClient {
   def impl[F[_]: Async](
       base: Client[F],
       botId: String,
