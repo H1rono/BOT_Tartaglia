@@ -11,6 +11,7 @@ import org.http4s._
 import org.http4s.circe._
 import cats.syntax.all._
 import cats.data.{EitherT, OptionT}
+import cats.Applicative
 
 trait BotHandler[F[_]] {
   def bot(req: Request[F]): F[Status]
@@ -77,7 +78,7 @@ object BotHandler {
                 .flatMap(_.toMap.get("path"))
                 .flatMap(_.asString)
               channelPathStr match {
-                case None => OptionT.fromOption(None).value
+                case None => noneF[F, Unit]
                 case Some(value) =>
                   for {
                     _ <- Console[F].println(s"joined to channel $value")
@@ -95,7 +96,7 @@ object BotHandler {
                 .flatMap(_.toMap.get("path"))
                 .flatMap(_.asString)
               channelPathStr match {
-                case None => OptionT.fromOption(None).value
+                case None => noneF[F, Unit]
                 case Some(path) =>
                   for {
                     _ <- Console[F].println(s"left from channel $path")
@@ -112,22 +113,39 @@ object BotHandler {
                 user <- message.asObject.flatMap(_.toMap.get("user"))
                 username <- user.asObject.flatMap(_.toMap.get("name")).flatMap(_.asString)
                 channelId <- message.asObject.flatMap(_.toMap.get("channelId")).flatMap(_.asString)
+                plainText <- message.asObject.flatMap(_.toMap.get("plainText")).flatMap(_.asString)
                 bot <- user.asObject.flatMap(_.toMap.get("bot")).flatMap(_.asBoolean)
-              } yield (username, channelId, bot)
+              } yield (username, channelId, plainText, bot)
               o match {
-                case None               => OptionT.fromOption(None).value
-                case Some((_, _, true)) => OptionT.fromOption(None).value
-                case Some((username, channelId, _)) =>
-                  for {
-                    _ <- Console[F].println(s"message from $username")
-                    sendTarget = TraqClient.SendTarget.Channel(channelId)
-                    _ <- conf.client.sendMessage(sendTarget, "ping", false)
-                  } yield Some(())
+                case None                  => noneF[F, Unit]
+                case Some((_, _, _, true)) => noneF[F, Unit]
+                case Some((username, channelId, plainText, _)) =>
+                  handleMessage(username, channelId, plainText).map(Some(_))
               }
             },
             HandleResults.BadInput
           )
         case _ => EitherT.leftT(HandleResults.Success)
       }
+
+    private def handleMessage(username: String, channelId: String, plainText: String): F[Unit] = {
+      val joinRegex = raw""".*join.*"""".r
+      val leaveRegex = raw""".*leave.*""".r
+      for {
+        _ <- Console[F].println(s"message from $username")
+        sendTarget = TraqClient.SendTarget.Channel(channelId)
+        _ <- conf.client.sendMessage(sendTarget, "ping", false)
+        _ <- joinRegex.findFirstMatchIn(plainText) match {
+          case None    => noneF[F, Unit]
+          case Some(_) => conf.client.joinChannel(channelId)
+        }
+        _ <- leaveRegex.findFirstMatchIn(plainText) match {
+          case None    => noneF[F, Unit]
+          case Some(_) => conf.client.leaveChannel(channelId)
+        }
+      } yield ()
+    }
+
+    private def noneF[F[_]: Applicative, A] = OptionT.fromOption[F](None: Option[A]).value
   }
 }
