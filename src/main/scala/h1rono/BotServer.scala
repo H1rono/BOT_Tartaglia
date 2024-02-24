@@ -26,7 +26,7 @@ object BotServer {
     traqClient = TraqClient.impl(baseClient, botId, botUserId, accessToken)
     helloWorldAlg = HelloWorld.impl[F]
     dumpReqAlg = DumpReq.impl[F]
-    botHandlerAlg = BotHandler.impl[F](BotHandler.Config(verificationToken))
+    botHandlerAlg = BotHandler.impl[F](BotHandler.Config(traqClient, verificationToken))
 
     // Combine Service Routes into an HttpApp.
     // Can also be done via a Router if you

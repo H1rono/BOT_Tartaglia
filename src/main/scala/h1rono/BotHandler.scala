@@ -6,6 +6,7 @@ import org.http4s.Request
 import org.typelevel.ci.CIString
 import io.circe.Json
 import cats.effect._
+import cats.effect.std.Console
 import org.http4s._
 import org.http4s.circe._
 import cats.syntax.all._
@@ -16,11 +17,11 @@ trait BotHandler[F[_]] {
 }
 
 object BotHandler {
-  final case class Config(verificationToken: String)
+  final case class Config[F[_]](client: TraqClient[F], verificationToken: String)
 
-  def impl[F[_]: Async: std.Console](conf: Config): BotHandler[F] = new BotHandler[F] {
+  def impl[F[_]: Async: Console](conf: Config[F]): BotHandler[F] = new BotHandler[F] {
     def bot(req: Request[F]): F[Status] = for {
-      req <- botInner(req).value
+      req <- parseRequest(req).value
       // TODO: Do something with req
     } yield req match {
       case Left(HandleResults.BadInput)        => Status.BadRequest
@@ -36,11 +37,11 @@ object BotHandler {
       case object UnexpectedError extends HandleResults
     }
 
-    private def botInner(req: Request[F]): EitherT[F, HandleResults, (String, Json)] = for {
+    private def parseRequest(req: Request[F]): EitherT[F, HandleResults, (String, Json)] = for {
       payload <- EitherT.right(req.as[Json])
       eventType <- checkRequest(req)
-      _ <- EitherT.right(std.Console[F].println(s"event type is $eventType"))
-      _ <- EitherT.right(std.Console[F].println(payload))
+      _ <- EitherT.right(Console[F].println(s"event type is $eventType"))
+      _ <- EitherT.right(Console[F].println(payload))
     } yield (eventType, payload)
 
     private def checkRequest(req: Request[F]): EitherT[F, HandleResults, String] = for {
