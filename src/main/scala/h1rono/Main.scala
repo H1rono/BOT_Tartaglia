@@ -1,7 +1,6 @@
-package example
+package h1rono
 
 import cats.effect.{IO, IOApp}
-import h1rono.BotServer
 
 object Main extends IOApp.Simple {
   val run = for {
