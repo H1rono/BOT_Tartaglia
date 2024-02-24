@@ -139,15 +139,11 @@ object BotHandler {
         _ <- Console[F].println(s"message from $username")
         sendTarget = TraqClient.SendTarget.Channel(channelId)
         _ <- conf.client.sendMessage(sendTarget, "ping", false)
-        _ <- Console[F].println(plainText.lines.findFirst.get)
         _ <- Console[F].println(s"regex match: $matchPair")
-        _ <- joinRegex.findFirstMatchIn(plainText) match {
-          case None    => noneF[F, Unit]
-          case Some(_) => conf.client.joinChannel(channelId)
-        }
-        _ <- leaveRegex.findFirstMatchIn(plainText) match {
-          case None    => noneF[F, Unit]
-          case Some(_) => conf.client.leaveChannel(channelId)
+        _ <- matchPair match {
+          case (true, false) => conf.client.joinChannel(channelId)
+          case (false, true) => conf.client.leaveChannel(channelId)
+          case _             => noneF[F, Unit]
         }
       } yield ()
     }
