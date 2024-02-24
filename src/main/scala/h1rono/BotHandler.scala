@@ -112,10 +112,12 @@ object BotHandler {
                 user <- message.asObject.flatMap(_.toMap.get("user"))
                 username <- user.asObject.flatMap(_.toMap.get("name")).flatMap(_.asString)
                 channelId <- message.asObject.flatMap(_.toMap.get("channelId")).flatMap(_.asString)
-              } yield (username, channelId)
+                bot <- user.asObject.flatMap(_.toMap.get("bot")).flatMap(_.asBoolean)
+              } yield (username, channelId, bot)
               o match {
-                case None => OptionT.fromOption(None).value
-                case Some((username, channelId)) =>
+                case None               => OptionT.fromOption(None).value
+                case Some((_, _, true)) => OptionT.fromOption(None).value
+                case Some((username, channelId, _)) =>
                   for {
                     _ <- Console[F].println(s"message from $username")
                     sendTarget = TraqClient.SendTarget.Channel(channelId)
