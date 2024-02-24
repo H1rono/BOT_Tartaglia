@@ -129,7 +129,7 @@ object BotHandler {
       }
 
     private def handleMessage(username: String, channelId: String, plainText: String): F[Unit] = {
-      val joinRegex = raw"""join"""".r
+      val joinRegex = raw"""join""".r
       val leaveRegex = raw"""leave""".r
       val matchPair = (
         joinRegex.findFirstMatchIn(plainText).isDefined,
