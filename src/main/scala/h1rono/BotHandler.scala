@@ -104,6 +104,27 @@ object BotHandler {
             },
             HandleResults.BadInput
           )
+        case "MESSAGE_CREATED" =>
+          EitherT.fromOptionF(
+            {
+              val o = for {
+                message <- payload.asObject.flatMap(_.toMap.get("message"))
+                user <- message.asObject.flatMap(_.toMap.get("user"))
+                username <- user.asObject.flatMap(_.toMap.get("name")).flatMap(_.asString)
+                channelId <- message.asObject.flatMap(_.toMap.get("channelId")).flatMap(_.asString)
+              } yield (username, channelId)
+              o match {
+                case None => OptionT.fromOption(None).value
+                case Some((username, channelId)) =>
+                  for {
+                    _ <- Console[F].println(s"message from $username")
+                    sendTarget = TraqClient.SendTarget.Channel(channelId)
+                    _ <- conf.client.sendMessage(sendTarget, "ping", false)
+                  } yield Some(())
+              }
+            },
+            HandleResults.BadInput
+          )
         case _ => EitherT.leftT(HandleResults.Success)
       }
   }
