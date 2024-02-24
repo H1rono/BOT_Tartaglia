@@ -129,12 +129,18 @@ object BotHandler {
       }
 
     private def handleMessage(username: String, channelId: String, plainText: String): F[Unit] = {
-      val joinRegex = raw""".*join.*"""".r
-      val leaveRegex = raw""".*leave.*""".r
+      val joinRegex = raw"""join"""".r
+      val leaveRegex = raw"""leave""".r
+      val matchPair = (
+        joinRegex.findFirstMatchIn(plainText).isDefined,
+        leaveRegex.findFirstMatchIn(plainText).isDefined
+      )
       for {
         _ <- Console[F].println(s"message from $username")
         sendTarget = TraqClient.SendTarget.Channel(channelId)
         _ <- conf.client.sendMessage(sendTarget, "ping", false)
+        _ <- Console[F].println(plainText.lines.findFirst.get)
+        _ <- Console[F].println(s"regex match: $matchPair")
         _ <- joinRegex.findFirstMatchIn(plainText) match {
           case None    => noneF[F, Unit]
           case Some(_) => conf.client.joinChannel(channelId)
