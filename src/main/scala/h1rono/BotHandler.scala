@@ -69,7 +69,7 @@ object BotHandler {
 
     private def handle(eventType: String, payload: Json): EitherT[F, HandleResults, Unit] =
       eventType match {
-        case "JOIN" =>
+        case "JOINED" =>
           EitherT.fromOptionF(
             {
               val channelPathStr = payload.asObject
@@ -79,7 +79,7 @@ object BotHandler {
                 .flatMap(_.asString)
               for {
                 path <- OptionT.fromOption(channelPathStr).value
-                _ <- Console[F].println(s"joined to channel $path")
+                _ <- Console[F].println(s"joined to channel ${path.get}")
               } yield Some(())
             },
             HandleResults.BadInput
@@ -94,7 +94,7 @@ object BotHandler {
                 .flatMap(_.asString)
               for {
                 path <- OptionT.fromOption(channelPathStr).value
-                _ <- Console[F].println(s"left from channel $path")
+                _ <- Console[F].println(s"left from channel ${path.get}")
               } yield Some(())
             },
             HandleResults.BadInput
