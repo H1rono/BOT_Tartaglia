@@ -131,6 +131,7 @@ object BotHandler {
     private def handleMessage(username: String, channelId: String, plainText: String): F[Unit] = {
       val joinRegex = raw"""join""".r
       val leaveRegex = raw"""leave""".r
+      val theRegex = raw"""モラがない""".r
       val matchPair = (
         joinRegex.findFirstMatchIn(plainText).isDefined,
         leaveRegex.findFirstMatchIn(plainText).isDefined
@@ -144,6 +145,13 @@ object BotHandler {
           case (true, false) => conf.client.joinChannel(channelId)
           case (false, true) => conf.client.leaveChannel(channelId)
           case _             => noneF[F, Unit]
+        }
+        _ <- theRegex.findFirstMatchIn(plainText) match {
+          case None => noneF[F, Unit]
+          case Some(_) => {
+            val target = TraqClient.SendTarget.Channel(channelId)
+            conf.client.sendMessage(target, "俺が払うよ", false).map(_ => ())
+          }
         }
       } yield ()
     }
