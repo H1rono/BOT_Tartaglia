@@ -142,8 +142,6 @@ object BotHandler {
       for {
         _ <- Console[F].println(s"message from $username")
         sendTarget = TraqClient.SendTarget.Channel(channelId)
-        _ <- client.sendMessage(sendTarget, "ping", false)
-        _ <- Console[F].println(s"regex match: $matchPair")
         _ <- matchPair match {
           case (true, false) => client.joinChannel(channelId)
           case (false, true) => client.leaveChannel(channelId)
