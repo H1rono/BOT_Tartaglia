@@ -1,17 +1,15 @@
 package h1rono
 
-import org.http4s.Status
-import cats.effect.kernel.Async
-import org.http4s.Request
-import org.typelevel.ci.CIString
-import io.circe.Json
+import cats.Applicative
+import cats.data.{EitherT, OptionT}
 import cats.effect._
 import cats.effect.std.Console
+import cats.effect.kernel.Async
+import cats.syntax.all._
+import io.circe.Json
 import org.http4s._
 import org.http4s.circe._
-import cats.syntax.all._
-import cats.data.{EitherT, OptionT}
-import cats.Applicative
+import org.typelevel.ci.CIString
 
 trait BotHandler[F[_]] {
   def bot(req: Request[F]): F[Status]

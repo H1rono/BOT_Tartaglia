@@ -1,13 +1,12 @@
 package h1rono
 
-import cats.effect.kernel.Async
-import org.http4s.client.Client
 import cats.effect._
+import cats.effect.kernel.Async
+import io.circe.Json
 import org.http4s._
 import org.http4s.circe._
 import org.http4s.client._
 import org.http4s.headers._
-import io.circe.Json
 
 trait TraqClient[F[_]] {
   def joinChannel(channelId: String): F[Unit]
