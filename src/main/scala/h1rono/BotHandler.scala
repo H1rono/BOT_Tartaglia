@@ -33,6 +33,9 @@ object BotHandler {
       case Right(_)                            => Status.NoContent
     })
 
+    private val verificationToken = conf.verificationToken
+    private val client = conf.client
+
     private sealed trait HandleResults
     private object HandleResults {
       case object Success extends HandleResults
@@ -56,7 +59,7 @@ object BotHandler {
         HandleResults.BadInput
       )
       res <- EitherT.cond(
-        token == conf.verificationToken,
+        token == verificationToken,
         eventType,
         HandleResults.BadInput: HandleResults
       )
@@ -139,18 +142,18 @@ object BotHandler {
       for {
         _ <- Console[F].println(s"message from $username")
         sendTarget = TraqClient.SendTarget.Channel(channelId)
-        _ <- conf.client.sendMessage(sendTarget, "ping", false)
+        _ <- client.sendMessage(sendTarget, "ping", false)
         _ <- Console[F].println(s"regex match: $matchPair")
         _ <- matchPair match {
-          case (true, false) => conf.client.joinChannel(channelId)
-          case (false, true) => conf.client.leaveChannel(channelId)
+          case (true, false) => client.joinChannel(channelId)
+          case (false, true) => client.leaveChannel(channelId)
           case _             => noneF[F, Unit]
         }
         _ <- theRegex.findFirstMatchIn(plainText) match {
           case None => noneF[F, Unit]
           case Some(_) => {
             val target = TraqClient.SendTarget.Channel(channelId)
-            conf.client.sendMessage(target, "俺が払うよ", false).map(_ => ())
+            client.sendMessage(target, "俺が払うよ", false).map(_ => ())
           }
         }
       } yield ()
