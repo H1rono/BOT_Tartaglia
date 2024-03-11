@@ -15,8 +15,13 @@
         metals = prev.metals.override { inherit jre; };
       };
     } // flake-utils.lib.eachDefaultSystem (system:
-      let pkgs = import nixpkgs { inherit system; };
-      in {
+      let
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ self.overlays.default ];
+        };
+      in
+      {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [ jdk21 scala_2_12 sbt metals ];
         };
