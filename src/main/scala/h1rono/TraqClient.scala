@@ -1,6 +1,5 @@
 package h1rono
 
-import cats.effect._
 import cats.effect.kernel.Async
 import io.circe.Json
 import org.http4s._
@@ -16,7 +15,7 @@ trait TraqClient[F[_]] {
 
 object TraqClient {
   sealed trait SendTarget
-  final object SendTarget {
+  object SendTarget {
     case class Channel(id: String) extends SendTarget
     case class Dm(userId: String) extends SendTarget
   }

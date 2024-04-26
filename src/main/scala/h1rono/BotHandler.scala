@@ -2,7 +2,6 @@ package h1rono
 
 import cats.Applicative
 import cats.data.{EitherT, OptionT}
-import cats.effect._
 import cats.effect.std.Console
 import cats.effect.kernel.Async
 import cats.syntax.all._
@@ -130,9 +129,9 @@ object BotHandler {
       }
 
     private def handleMessage(username: String, channelId: String, plainText: String): F[Unit] = {
-      val joinRegex = raw"""join""".r
-      val leaveRegex = raw"""leave""".r
-      val theRegex = raw"""モラがない""".r
+      val joinRegex = """join""".r
+      val leaveRegex = """leave""".r
+      val theRegex = """モラがない""".r
       val matchPair = (
         joinRegex.findFirstMatchIn(plainText).isDefined,
         leaveRegex.findFirstMatchIn(plainText).isDefined
