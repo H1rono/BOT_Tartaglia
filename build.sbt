@@ -18,9 +18,7 @@ lazy val root = (project in file("."))
     // configurations required by scalafix
     semanticdbEnabled := true, // enable SemanticDB
     semanticdbVersion := scalafixSemanticdb.revision, // only required for Scala 2.x
-    scalacOptions += "-Ywarn-unused-import", // Scala 2.x only, required by `RemoveUnused`
-    // required by http4s
-    scalacOptions += "-Ypartial-unification"
+    scalacOptions += "-Wunused"
   )
 
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
