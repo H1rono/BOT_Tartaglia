@@ -16,6 +16,7 @@ jobs:
           java-version: '21.0.0'
           distribution: zulu
       - run: sbt compile
+      - run: sbt stage
       - run: sbt scalafmtSbtCheck
       - run: sbt scalafmtCheck
       - run: sbt scalafix
