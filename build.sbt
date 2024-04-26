@@ -8,7 +8,7 @@ ThisBuild / organizationName := "h1rono"
 run / fork := true
 
 lazy val root = (project in file("."))
-  .enablePlugins(JavaAppPackaging)
+  .enablePlugins(JavaAppPackaging, DockerPlugin)
   .settings(
     name := "bot-tartaglia",
     // deps
@@ -19,7 +19,9 @@ lazy val root = (project in file("."))
     // configurations required by scalafix
     semanticdbEnabled := true, // enable SemanticDB
     semanticdbVersion := scalafixSemanticdb.revision, // only required for Scala 2.x
-    scalacOptions += "-Wunused"
+    scalacOptions += "-Wunused",
+    // Docker configuration
+    dockerBaseImage := "eclipse-temurin:21-jre-jammy"
   )
 
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
