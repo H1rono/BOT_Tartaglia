@@ -1,5 +1,7 @@
 package h1rono
 
+import scala.annotation.unused
+
 import cats.effect.kernel.Async
 import io.circe.Json
 import org.http4s._
@@ -23,7 +25,7 @@ object TraqClient {
   def impl[F[_]: Async](
       base: Client[F],
       botId: String,
-      botUserId: String,
+      @unused botUserId: String,
       accessToken: String
   ): TraqClient[F] = new TraqClient[F] {
     def joinChannel(channelId: String): F[Unit] = {
