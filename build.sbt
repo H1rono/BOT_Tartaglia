@@ -22,6 +22,8 @@ lazy val root = (project in file("."))
     scalacOptions += "-Wunused",
     // Docker configuration
     dockerBaseImage := "eclipse-temurin:21-jre-jammy"
+    // TODO: LABEL設定
+    // https://docs.github.com/ja/packages/working-with-a-github-packages-registry/working-with-the-container-registry#labelling-container-images
   )
 
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
