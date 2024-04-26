@@ -11,7 +11,7 @@
       overlays.default = final: prev: rec {
         jre = prev.jdk21;
         sbt = prev.sbt.override { inherit jre; };
-        scala_2_12 = prev.scala_2_12.override { inherit jre; };
+        scala = prev.scala.override { inherit jre; };
         metals = prev.metals.override { inherit jre; };
       };
     } // flake-utils.lib.eachDefaultSystem (system:
@@ -23,7 +23,7 @@
       in
       {
         devShells.default = pkgs.mkShell {
-          packages = with pkgs; [ jdk21 scala_2_12 sbt metals ];
+          packages = with pkgs; [ jdk21 scala sbt metals ];
         };
       });
 }
