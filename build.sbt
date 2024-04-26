@@ -8,6 +8,7 @@ ThisBuild / organizationName := "h1rono"
 run / fork := true
 
 lazy val root = (project in file("."))
+  .enablePlugins(JavaAppPackaging)
   .settings(
     name := "bot-tartaglia",
     // deps
